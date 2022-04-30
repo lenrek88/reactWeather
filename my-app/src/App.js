@@ -148,7 +148,6 @@ function ContentTwo(props) {
 
 function ContentOne(props) {
 
-    console.log(props.liked)
 
     const [background,setBackground] = useState('');
     const [backgroundLike,setBackgroundLike] = useState('');
@@ -156,14 +155,13 @@ function ContentOne(props) {
     const [liked, setLiked] = useState([])
     const [deleteCity, setDeleteCity] = useState(props.deleteCity);
 
-    useEffect(() => {
-        console.log('hi, DELETE!!!!!!!!!!')
-
-        let deleteIndex = liked.indexOf(deleteCity, 0)
-        let delLiked = liked
-        let megadel = delLiked.splice(deleteCity, 0)
-        setLiked(megadel)
-    }, [deleteCity])
+    // useEffect(() => {
+    //
+    //     let deleteIndex = liked.indexOf(deleteCity, 0)
+    //     let delLiked = liked
+    //     let megadel = delLiked.splice(deleteCity, 0)
+    //     setLiked(megadel)
+    // }, [deleteCity])
 
     useEffect(() => {
                      let inf = props.fetcher
@@ -195,14 +193,11 @@ function ContentOne(props) {
     }, [props.fetcher])
 
     useEffect(() => {
-        props.handlerLikeButton(liked);
         if (props.likedToGray === true) {
             setBackgroundLike('likeRed')
-            console.log("LIKE")
 
         } else {
             setBackgroundLike('like')
-            console.log("NoLike")
 
         }
     }, [liked])
@@ -210,21 +205,15 @@ function ContentOne(props) {
     useEffect(() => {
         if (props.likedToGray === true) {
             setBackgroundLike('likeRed')
-            console.log("LIKE")
 
         } else {
             setBackgroundLike('like')
-            console.log("NoLike")
 
         }
     })
 
     function handlerLikeButton() {
-        if (!liked.includes(props.currentValue, 0)) {
-            setLiked([...liked, props.currentValue])
-        } else {
-            alert('Данный город уже присутствует в избранном!')
-        }
+        props.handlerLikeButton(props.currentValue)
     }
 
     if  (!props.premission) return null;
@@ -250,14 +239,10 @@ function Tabs(props) {
     const [liked, setLiked] = useState([]);
 
 
-    function handlerLikeButton(pr) {
-        setLiked(pr);
-
-    }
-    useEffect(() => {
-        props.handlerLikedButton(liked);
-
-    }, [liked])
+    // useEffect(() => {
+    //     props.handlerLikedButton(liked);
+    //
+    // }, [liked])
 
      function handlerClick(e) {
          setActive(e.target.id);
@@ -266,7 +251,7 @@ function Tabs(props) {
     return (
         <div className="tabs">
             <div className="tabs_info">
-                <ContentOne deleteCity={props.deleteCity} likedToGray={props.likedToGray} premission={active === "tab-btn-1"} isloaded={props.isloaded} fetcher={props.fetcher} value={props.value}  currentValue={props.currentValue} handlerLikeButton={handlerLikeButton}/>
+                <ContentOne handlerLikeButton={props.handlerLikeButton} deleteCity={props.deleteCity} likedToGray={props.likedToGray} premission={active === "tab-btn-1"} isloaded={props.isloaded} fetcher={props.fetcher} value={props.value}  currentValue={props.currentValue}/>
                 <ContentTwo premission={active === "tab-btn-2"} isloaded={props.isloaded} fetcher={props.fetcher} value={props.value} currentValue={props.currentValue}/>
                 <ContentThreeFinish premission={active === "tab-btn-3"} isloaded2={props.isloaded2} fetcher2={props.fetcher2} value={props.value} currentValue={props.currentValue}/>
             </div>
@@ -284,7 +269,6 @@ function Tabs(props) {
 
 function AddedLocations(props) {
 
-    console.log(props.liked)
 
     function setCurrentLikeCity(pr) {
         props.setCurrentLikeCity(pr)
@@ -304,6 +288,7 @@ function AddedLocations(props) {
                 item={item}
                 setCurrentLikeCity={setCurrentLikeCity}
                 handlerDelete={handlerDelete}
+                delCity={props.delCity}
             />
         )}
         )
@@ -327,6 +312,7 @@ function AddedLocationsReturn(props) {
 
     function handlerDelete() {
         props.handlerDelete(props.item)
+        props.delCity()
     }
 
     return (
@@ -388,7 +374,7 @@ function Content(props) {
 
 
 
-    console.log(liked)
+
     useEffect(() => {
         let cityName = currentValue;
         const url = `${SERVER_URL}?q=${cityName}&appid=${API_KEY}`;
@@ -426,20 +412,40 @@ function Content(props) {
     }, [liked])
 
     useEffect(() => {
-       let deleteIndex = liked.indexOf(deleteCity, 0)
-        let delLiked = liked
-       let megadel = delLiked.splice(deleteCity, 0)
-        setLiked(megadel)
-
+        let newLiked = []
+        liked.map(item => {
+            if (item != deleteCity) {
+                newLiked = [...newLiked, item]
+            }
+        })
+        setLiked(newLiked)
     }, [deleteCity])
+
+    function delCity(pr) {
+        let newLiked = []
+        liked.map(item => {
+            if (item != deleteCity) {
+                newLiked = [...newLiked, item]
+            }
+        })
+        setLiked(newLiked)
+    }
 
     function changeValue(props) {
         setCurrentValue(props)
         setValue([props])
     }
 
-    function handlerLikedButton(pr) {
-        setLiked(pr)
+    // function handlerLikedButton(pr) {
+    //     setLiked(pr)
+    // }
+
+    function handlerLikeButton(pr) {
+        if (!liked.includes(currentValue, 0)) {
+            setLiked([...liked, pr])
+        } else {
+            alert('Данный город уже присутствует в избранном!')
+        }
     }
 
 
@@ -451,12 +457,12 @@ function Content(props) {
         return (
             <div className="weather">
                 <SearchForm func={changeValue}/>
-                <Tabs deleteCity={deleteCity} likedToGray={likedToGray} value={value} currentValue={currentValue} isloaded={isloaded} isloaded2={isloaded2} handlerLikedButton={handlerLikedButton} fetcher={fetcher} fetcher2={fetcher2}/>
+                <Tabs handlerLikeButton={handlerLikeButton} deleteCity={deleteCity} likedToGray={likedToGray} value={value} currentValue={currentValue} isloaded={isloaded} isloaded2={isloaded2} fetcher={fetcher} fetcher2={fetcher2}/>
                 <div className="added-locations">
                     Added Locations:
                 </div>
                 <div className="locations">
-                    <AddedLocations handlerDelete={handlerDelete} setCurrentLikeCity={setCurrentLikeCity} liked={liked}/>
+                    <AddedLocations delCity={delCity} handlerDelete={handlerDelete} setCurrentLikeCity={setCurrentLikeCity} liked={liked}/>
                 </div>
 
             </div>
