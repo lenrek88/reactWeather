@@ -1,6 +1,6 @@
 import './style.css';
 import {useEffect, useState} from "react";
-
+import {useCookies} from "react-cookie";
 
 const SERVER_URL = 'https://api.openweathermap.org/data/2.5/weather';
 const SERVER_URL2 = 'https://api.openweathermap.org/data/2.5/forecast';
@@ -312,7 +312,7 @@ function AddedLocationsReturn(props) {
 
     function handlerDelete() {
         props.handlerDelete(props.item)
-        props.delCity()
+        props.delCity(props.item)
     }
 
     return (
@@ -362,7 +362,10 @@ function Content(props) {
     const [isloaded, setIsloaded] = useState(false);
     const [isloaded2, setIsloaded2] = useState(false);
     const [error, setError] = useState('');
-    const [deleteCity, setDeleteCity] = useState('');
+    const [deleteCity, setDeleteCity] = useState("");
+
+
+
 
     function setCurrentLikeCity(pr) {
         setCurrentValue(pr)
@@ -372,11 +375,31 @@ function Content(props) {
         setDeleteCity(pr)
     }
 
+    useEffect(() => {
+        setLiked(...liked, JSON.parse(localStorage.getItem('FavoriteCity')))
+        setCurrentValue(localStorage.getItem('ThisCity'))
+    }, [])
+
+    useEffect(() => {
+        localStorage.setItem('FavoriteCity', JSON.stringify(liked))
+        console.log('SAVE')
+
+    }, [liked])
+
+
+
+    function onChange() {
+        localStorage.setItem('ThisCity', (currentValue))
+        console.log(localStorage.getItem('ThisCity'))
+        console.log(...liked, JSON.parse(localStorage.getItem('FavoriteCity')))
+    }
+
 
 
 
     useEffect(() => {
-        let cityName = currentValue;
+
+            let cityName = currentValue;
         const url = `${SERVER_URL}?q=${cityName}&appid=${API_KEY}`;
         let cityName2 = currentValue;
         const url2 = `${SERVER_URL2}?q=${cityName2}&appid=${API_KEY}`;
@@ -403,7 +426,6 @@ function Content(props) {
 
 
         setLikedToGray(liked.includes(currentValue, 0))
-
     }, [currentValue])
 
 
@@ -411,24 +433,16 @@ function Content(props) {
         setLikedToGray(liked.includes(currentValue, 0))
     }, [liked])
 
-    useEffect(() => {
-        let newLiked = []
-        liked.map(item => {
-            if (item != deleteCity) {
-                newLiked = [...newLiked, item]
-            }
-        })
-        setLiked(newLiked)
-    }, [deleteCity])
 
     function delCity(pr) {
         let newLiked = []
         liked.map(item => {
-            if (item != deleteCity) {
+            if (item != pr) {
                 newLiked = [...newLiked, item]
             }
         })
         setLiked(newLiked)
+
     }
 
     function changeValue(props) {
@@ -446,6 +460,7 @@ function Content(props) {
         } else {
             alert('Данный город уже присутствует в избранном!')
         }
+
     }
 
 
@@ -455,7 +470,7 @@ function Content(props) {
         return <p>Loading ...</p>
     } else {
         return (
-            <div className="weather">
+            <div className="weather" onClick={onChange}>
                 <SearchForm func={changeValue}/>
                 <Tabs handlerLikeButton={handlerLikeButton} deleteCity={deleteCity} likedToGray={likedToGray} value={value} currentValue={currentValue} isloaded={isloaded} isloaded2={isloaded2} fetcher={fetcher} fetcher2={fetcher2}/>
                 <div className="added-locations">
