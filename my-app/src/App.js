@@ -382,19 +382,11 @@ function Content(props) {
 
     useEffect(() => {
         localStorage.setItem('FavoriteCity', JSON.stringify(liked))
-        console.log('SAVE')
-
     }, [liked])
 
-
-
-    function onChange() {
+    useEffect(() => {
         localStorage.setItem('ThisCity', (currentValue))
-        console.log(localStorage.getItem('ThisCity'))
-        console.log(...liked, JSON.parse(localStorage.getItem('FavoriteCity')))
-    }
-
-
+    }, [currentValue])
 
 
     useEffect(() => {
@@ -470,7 +462,7 @@ function Content(props) {
         return <p>Loading ...</p>
     } else {
         return (
-            <div className="weather" onClick={onChange}>
+            <div className="weather" >
                 <SearchForm func={changeValue}/>
                 <Tabs handlerLikeButton={handlerLikeButton} deleteCity={deleteCity} likedToGray={likedToGray} value={value} currentValue={currentValue} isloaded={isloaded} isloaded2={isloaded2} fetcher={fetcher} fetcher2={fetcher2}/>
                 <div className="added-locations">
